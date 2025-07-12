@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Chart with ECharts</title>
+    <!-- 引入 ECharts 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+</head>
+
+<body>
+    <!-- 为 div 元素添加 id 属性 -->
+    <div id="chartDom" style="height: 400px; width: 700px;">
+    </div>
+    <script>
+        // 获取图表容器元素
+        var chartDom = document.getElementById('chartDom');
+        var myChart = echarts.init(chartDom);
+        var xDataArr = ['周一','周二','周三','周四','周五','周六','周日']
+        var option;
+
+        option = {
+            title:{
+                text:'不同产品在不同市场的销量'
+            },
+            tooltip:{
+                trigger:'axis',
+                axisPointer:{
+                    type:'shadow'
+                }
+            },
+            legend:{
+                bottom:10
+            },
+            xAxis:{
+                name:'销量',
+                type:'value'
+            },
+            yAxis:{
+                name:'产品类型',
+                type:'category',
+                data:['产品一','产品二','产品三','产品四','产品五','产品六']
+            },
+            series:[
+            {
+                name:'A商场',
+                type:'bar',
+                stack:'total',
+                label:{
+                    show:true
+                },
+                emphasis:{
+                    focue:'series'
+                },
+                data:[320,302,301,334,330,490],
+                markPoint:{
+                    data:[
+                        {type:'max',name:'max'},
+                        {type:'min',name:'min'},
+                    ]
+                }
+            },
+            {
+                 name:'B商场',
+                type:'bar',
+                stack:'total',
+                label:{
+                    show:true
+                },
+                emphasis:{
+                    focue:'series'
+                },
+                data:[320,332,320,334,330,480]
+            },
+            {
+                 name:'C商场',
+                type:'bar',
+                stack:'total',
+                label:{
+                    show:true
+                },
+                emphasis:{
+                    focue:'series'
+                },
+                data:[220,182,191,234,330,290]
+            },
+            {
+                 name:'D商场',
+                type:'bar',
+                stack:'total',
+                label:{
+                    show:true
+                },
+                emphasis:{
+                    focue:'series'
+                },
+                data:[150,212,201,154,330,190]
+
+            },
+            {
+                 name:'E商场',
+                type:'bar',
+                stack:'total',
+                label:{
+                    show:true
+                },
+                emphasis:{
+                    focue:'series'
+                },
+                data:[420,300,400,290,310,280]
+            },
+            {
+                 name:'F商场',
+                type:'bar',
+                stack:'total',
+                label:{
+                    show:true
+                },
+                emphasis:{
+                    focue:'series'
+                },
+                data:[180,310,250,490,243,298]
+            }
+            ]
+        };
+
+        option && myChart.setOption(option);
+</script>
+</body>
+
+</html>
