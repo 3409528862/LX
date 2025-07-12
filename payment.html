@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付页面</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>支付页面</h1>
+    <form action="success.html" method="get">
+        <label for="payment-method">支付方式:</label>
+        <select id="payment-method" name="payment-method">
+            <option value="alipay">支付宝</option>
+            <option value="wechat">微信支付</option>
+        </select><br><br>
+        <button type="submit">支付</button>
+        <button type="button" onclick="window.location.href='booking.html';">取消</button>
+    </form>
+</body>
+</html>

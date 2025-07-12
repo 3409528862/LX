@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <!-- 原有的 head 部分代码 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐厅预约系统 - 数据分析大屏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.10/dist/echarts-gl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-stat@latest/dist/ecStat.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.0.6/dist/echarts-liquidfill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-china-map@2.0.0/dist/echarts-china-map.min.js"></script>
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0A1128',
+                        'dark-card': '#121E40',
+                        primary: '#36CBCB',
+                        secondary: '#722ED1',
+                        accent: '#FF7D00',
+                        success: '#27AE60',
+                        warning: '#F7BA1E',
+                        danger: '#F53F3F'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .data-card {
+                @apply bg-dark-card rounded-xl p-4 md:p-6 shadow-lg border border-gray-800 transition-all duration-300 hover:shadow-xl hover:border-primary/30;
+            }
+            .stat-value {
+                @apply text-3xl md:text-4xl font-bold leading-tight;
+            }
+            .stat-label {
+                @apply text-sm md:text-base text-gray-400;
+            }
+            .chart-container {
+                @apply w-full h-full rounded-lg overflow-hidden;
+            }
+            .title-glow {
+                text-shadow: 0 0 10px rgba(54, 203, 203, 0.5), 0 0 20px rgba(54, 203, 203, 0.3);
+            }
+            .grid-dashboard {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+            .scroll-indicator {
+                height: 3px;
+                background: linear-gradient(90deg, #36CBCB, #722ED1);
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 100;
+                transition: width 0.2s ease;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-dark text-white font-inter min-w-[1024px]">
+    <!-- 滚动指示器 -->
+    <div id="scrollIndicator" class="scroll-indicator"></div>
+
+    <!-- 顶部导航 -->
+    <header class="bg-dark-card border-b border-gray-800 py-3 px-6 sticky top-0 z-50 backdrop-blur-sm">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-chart-line text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold title-glow">餐厅预约系统 - 数据分析大屏</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="bg-dark p-2 rounded-lg flex items-center">
+                    <i class="fa-solid fa-calendar-alt text-gray-400 mr-2"></i>
+                    <span id="currentDate" class="text-sm"></span>
+                </div>
+                <div class="bg-dark p-2 rounded-lg flex items-center">
+                    <i class="fa-solid fa-clock text-gray-400 mr-2"></i>
+                    <span id="currentTime" class="text-sm"></span>
+                </div>
+                <button
+                    class="bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1 rounded-lg transition-colors duration-300 text-sm">
+                    <i class="fa-solid fa-download mr-1"></i> 导出报告
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <!-- 时间范围选择 -->
+        <div class="mb-8 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <h2 class="text-2xl font-bold">数据概览</h2>
+                <div class="flex items-center space-x-2 bg-dark-card px-3 py-1 rounded-lg">
+                    <span class="text-sm text-gray-400">时间范围:</span>
+                    <select
+                        class="bg-dark border border-gray-700 rounded-md px-2 py-1 text-sm focus:outline-none focus:border-primary">
+                        <option>今日</option>
+                        <option selected>本周</option>
+                        <option>本月</option>
+                        <option>本季度</option>
+                        <option>本年度</option>
+                        <option>自定义</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="bg-dark-card hover:bg-dark-card/80 p-2 rounded-lg transition-colors duration-300">
+                    <i class="fa-solid fa-refresh text-primary"></i>
+                </button>
+                <button class="bg-dark-card hover:bg-dark-card/80 p-2 rounded-lg transition-colors duration-300">
+                    <i class="fa-solid fa-expand text-primary"></i>
+                </button>
+                <button class="bg-dark-card hover:bg-dark-card/80 p-2 rounded-lg transition-colors duration-300">
+                    <i class="fa-solid fa-cog text-primary"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 核心指标卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- 原有的核心指标卡片代码 -->
+            <div class="data-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="stat-label">总预约数</p>
+                        <p class="stat-value text-primary">1,284</p>
+                        <p class="text-success text-sm mt-2 flex items-center">
+                            <i class="fa-solid fa-arrow-up mr-1"></i> 12.5% 较上周
+                        </p>
+                    </div>
+                    <div class="bg-primary/20 p-3 rounded-lg">
+                        <i class="fa-solid fa-calendar-check text-primary text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 h-16">
+                    <div id="bookingsTrend" class="w-full h-full"></div>
+                </div>
+            </div>
+
+            <div class="data-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="stat-label">活跃用户</p>
+                        <p class="stat-value text-secondary">458</p>
+                        <p class="text-success text-sm mt-2 flex items-center">
+                            <i class="fa-solid fa-arrow-up mr-1"></i> 8.3% 较上周
+                        </p>
+                    </div>
+                    <div class="bg-secondary/20 p-3 rounded-lg">
+                        <i class="fa-solid fa-users text-secondary text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 h-16">
+                    <div id="usersTrend" class="w-full h-full"></div>
+                </div>
+            </div>
+
+            <div class="data-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="stat-label">餐厅使用率</p>
+                        <p class="stat-value text-accent">78.2%</p>
+                        <p class="text-danger text-sm mt-2 flex items-center">
+                            <i class="fa-solid fa-arrow-down mr-1"></i> 3.1% 较上周
+                        </p>
+                    </div>
+                    <div class="bg-accent/20 p-3 rounded-lg">
+                        <i class="fa-solid fa-chair text-accent text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 h-16">
+                    <div id="utilizationTrend" class="w-full h-full"></div>
+                </div>
+            </div>
+
+            <div class="data-card">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="stat-label">平均等待时间</p>
+                        <p class="stat-value text-warning">12.5 <span class="text-sm font-normal">分钟</span></p>
+                        <p class="text-success text-sm mt-2 flex items-center">
+                            <i class="fa-solid fa-arrow-down mr-1"></i> 4.2% 较上周
+                        </p>
+                    </div>
+                    <div class="bg-warning/20 p-3 rounded-lg">
+                        <i class="fa-solid fa-clock text-warning text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 h-16">
+                    <div id="waitingTrend" class="w-full h-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要图表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- 原有的主要图表区域代码 -->
+            <!-- 预约趋势图 -->
+            <div class="data-card lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">预约趋势分析</h3>
+                    <div class="flex space-x-2">
+                        <button
+                            class="bg-dark hover:bg-dark/80 text-sm px-3 py-1 rounded-md transition-colors duration-300">日</button>
+                        <button
+                            class="bg-primary/20 text-primary text-sm px-3 py-1 rounded-md transition-colors duration-300">周</button>
+                        <button
+                            class="bg-dark hover:bg-dark/80 text-sm px-3 py-1 rounded-md transition-colors duration-300">月</button>
+                    </div>
+                </div>
+                <div class="h-[300px]">
+                    <div id="bookingTrendChart" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- 餐厅分布饼图 -->
+            <div class="data-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">餐厅菜品分布</h3>
+                    <button class="text-primary hover:text-primary/80 transition-colors duration-300">
+                        <i class="fa-solid fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                <div class="h-[300px] flex items-center justify-center">
+                    <div id="restaurantDistributionChart" class="chart-container w-[240px] h-[240px]"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第二行图表 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- 原有的第二行图表代码 -->
+            <!-- 预约时段分布 -->
+            <div class="data-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">预约时段分布</h3>
+                    <button class="text-primary hover:text-primary/80 transition-colors duration-300">
+                        <i class="fa-solid fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                <div class="h-[300px]">
+                    <div id="timeDistributionChart" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- 用户满意度 -->
+            <div class="data-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">用户满意度</h3>
+                    <button class="text-primary hover:text-primary/80 transition-colors duration-300">
+                        <i class="fa-solid fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                <div class="h-[300px]">
+                    <div id="satisfactionChart" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- 热门餐厅 -->
+            <div class="data-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">热门餐厅排行</h3>
+                    <button class="text-primary hover:text-primary/80 transition-colors duration-300">
+                        <i class="fa-solid fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                <div class="h-[300px]">
+                    <div id="popularRestaurantsChart" class="chart-container"></div>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+
+    <footer class="bg-dark-card border-t border-gray-800 py-4 mt-8">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-sm">
+            <p>© 2025 餐厅预约系统 - 数据分析大屏 | 更新时间: <span id="updateTime">2025-06-16 10:30</span></p>
+        </div>
+    </footer>
+
+    <script>
+        // 更新当前日期和时间
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('zh-CN', dateOptions);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('zh-CN', timeOptions);
+        }
+
+        // 初始化滚动指示器
+        function initScrollIndicator() {
+            window.addEventListener('scroll', function () {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('scrollIndicator').style.width = scrolled + "%";
+            });
+        }
+
+        // 初始化图表
+        function initCharts() {
+            // 小卡片趋势图
+            const smallChartOptions = {
+                grid: {
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                },
+                xAxis: {
+                    show: false
+                },
+                yAxis: {
+                    show: false
+                },
+                series: [{
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    areaStyle: {},
+                    data: []
+                }]
+            };
+
+            // 总预约数趋势
+            const bookingsTrendChart = echarts.init(document.getElementById('bookingsTrend'));
+            bookingsTrendChart.setOption({
+                ...smallChartOptions,
+                series: [{
+                    ...smallChartOptions.series[0],
+                    data: [320, 332, 301, 334, 390, 430, 410],
+                    itemStyle: {
+                        color: '#36CBCB'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0, color: 'rgba(54, 203, 203, 0.5)' // 0% 处的颜色
+                            }, {
+                                offset: 1, color: 'rgba(54, 203, 203, 0)' // 100% 处的颜色
+                            }],
+                            global: false // 缺省为 false
+                        }
+                    },
+                    lineStyle: {
+                        color: '#36CBCB'
+                    }
+                }]
+            });
+
+            // 活跃用户趋势
+            const usersTrendChart = echarts.init(document.getElementById('usersTrend'));
+            usersTrendChart.setOption({
+                ...smallChartOptions,
+                series: [{
+                    ...smallChartOptions.series[0],
+                    data: [120, 132, 101, 134, 90, 230, 210],
+                    itemStyle: {
+                        color: '#722ED1'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0, color: 'rgba(114, 46, 209, 0.5)' // 0% 处的颜色
+                            }, {
+                                offset: 1, color: 'rgba(114, 46, 209, 0)' // 100% 处的颜色
+                            }],
+                            global: false // 缺省为 false
+                        }
+                    },
+                    lineStyle: {
+                        color: '#722ED1'
+                    }
+                }]
+            });
+
+            // 餐厅使用率趋势
+            const utilizationTrendChart = echarts.init(document.getElementById('utilizationTrend'));
+            utilizationTrendChart.setOption({
+                ...smallChartOptions,
+                series: [{
+                    ...smallChartOptions.series[0],
+                    data: [820, 932, 901, 934, 1290, 1330, 1320],
+                    itemStyle: {
+                        color: '#FF7D00'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0, color: 'rgba(255, 125, 0, 0.5)' // 0% 处的颜色
+                            }, {
+                                offset: 1, color: 'rgba(255, 125, 0, 0)' // 100% 处的颜色
+                            }],
+                            global: false // 缺省为 false
+                        }
+                    },
+                    lineStyle: {
+                        color: '#FF7D00'
+                    }
+                }]
+            });
+
+            // 平均等待时间趋势
+            // 初始化排队趋势图表实例，绑定到 ID 为 waitingTrend 的 DOM 元素
+            const waitingTrendChart = echarts.init(document.getElementById('waitingTrend'));
+            // 设置图表配置项（继承 smallChartOptions 基础配置）
+            waitingTrendChart.setOption({
+                // 继承基础配置（如标题、网格、坐标轴等通用设置）
+                ...smallChartOptions,
+                series: [{
+                    // 继承系列基础配置
+                    ...smallChartOptions.series[0],
+
+                    // 具体数据
+                    data: [18, 15, 16, 12, 13, 10, 12],  // 排队人数数据
+
+                    // 图表样式配置
+                    itemStyle: {
+                        color: '#F7BA1E'  // 数据点颜色（橙色）
+                    },
+
+                    // 区域填充样式
+                    areaStyle: {
+                        color: {
+                            type: 'linear',  // 线性渐变
+                            x: 0, y: 0,      // 渐变起点 (左上方)
+                            x2: 0, y2: 1,    // 渐变终点 (左下方)
+                            colorStops: [
+                                { offset: 0, color: 'rgba(247, 186, 30, 0.5)' },  // 顶部半透明橙色
+                                { offset: 1, color: 'rgba(247, 186, 30, 0)' }      // 底部透明
+                            ],
+                            global: false  // 局部渐变
+                        }
+                    },
+
+                    // 线条样式
+                    lineStyle: {
+                        color: '#F7BA1E'  // 线条颜色（橙色）
+                    }
+                }]
+            });
+
+            // 预约趋势图
+            // 初始化图表实例，绑定到 ID 为 bookingTrendChart 的 DOM 元素
+            const bookingTrendChart = echarts.init(document.getElementById('bookingTrendChart'));
+
+            // 设置图表配置项
+            bookingTrendChart.setOption({
+                // 定义图表中不同系列的颜色
+                color: ['#36CBCB', '#722ED1', '#F53F3F'],
+
+                // 配置鼠标悬停时的提示框
+                tooltip: {
+                    trigger: 'axis',  // 触发类型为坐标轴，鼠标悬停在坐标轴上时显示提示
+                    axisPointer: {
+                        type: 'cross',  // 指示器类型为十字线
+                        crossStyle: {
+                            color: '#999'  // 十字线颜色
+                        }
+                    }
+                },
+
+                // 配置图例，显示数据系列的名称
+                legend: {
+                    data: ['预约数', '完成数', '取消数'],  // 图例项名称
+                    textStyle: {
+                        color: '#C9CDD4'  // 图例文字颜色
+                    }
+                },
+
+                // 配置图表网格区域
+                grid: {
+                    left: '3%',  // 网格左侧边距
+                    right: '4%', // 网格右侧边距
+                    bottom: '3%', // 网格底部边距
+                    containLabel: true  // 网格区域是否包含坐标轴标签
+                },
+
+                // 配置 X 轴
+                xAxis: {
+                    type: 'category',  // 类别轴
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],  // 坐标轴数据（星期）
+                    axisLabel: {
+                        color: '#C9CDD4'  // 坐标轴标签颜色
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#4E5969'  // 坐标轴线条颜色
+                        }
+                    }
+                },
+
+                // 配置 Y 轴
+                yAxis: {
+                    type: 'value',  // 数值轴
+                    axisLabel: {
+                        color: '#C9CDD4'  // 坐标轴标签颜色
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#4E5969'  // 坐标轴线条颜色
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(78, 89, 105, 0.2)'  // 网格线颜色（半透明）
+                        }
+                    }
+                },
+
+                // 配置数据系列
+                series: [
+                    {
+                        name: '预约数',  // 系列名称
+                        type: 'bar',  // 图表类型：柱状图
+                        data: [120, 132, 101, 134, 90, 230, 210]  // 数据值
+                    },
+                    {
+                        name: '完成数',
+                        type: 'bar',
+                        data: [220, 182, 191, 234, 290, 330, 310]
+                    },
+                    {
+                        name: '取消数',
+                        type: 'line',  // 图表类型：折线图
+                        data: [32, 23, 19, 34, 29, 33, 21]
+                    }
+                ]
+            });
+
+            // 餐厅菜品分布饼图
+            // 初始化餐厅分布图表实例，绑定到 ID 为 restaurantDistributionChart 的 DOM 元素
+            const restaurantDistributionChart = echarts.init(document.getElementById('restaurantDistributionChart'));
+
+            // 设置图表配置项
+            restaurantDistributionChart.setOption({
+                // 配置鼠标悬停时的提示框
+                tooltip: {
+                    trigger: 'item'  // 触发类型为数据项，鼠标悬停在饼图扇区时显示提示
+                },
+
+                // 配置图例（数据系列的名称和颜色标识）
+                legend: {
+                    orient: 'vertical',  // 图例垂直排列
+                    right: 10,  // 图例位于右侧，距离右侧边缘 10px
+                    top: 'middle',  // 图例垂直居中
+                    textStyle: {
+                        color: '#C9CDD4'  // 图例文字颜色
+                    }
+                },
+
+                // 配置数据系列
+                series: [
+                    {
+                        name: '餐厅分布',  // 系列名称
+                        type: 'pie',  // 图表类型：饼图
+                        radius: ['40%', '70%'],  // 饼图内外半径（环形饼图），40% 为内半径，70% 为外半径
+                        avoidLabelOverlap: false,  // 不自动避免标签重叠
+                        itemStyle: {
+                            borderRadius: 4  // 扇区边缘圆角
+                        },
+
+                        // 配置标签（显示在饼图外部的文字）
+                        label: {
+                            show: true,  // 显示标签
+                            position: 'outside',  // 标签位置：外部
+                            formatter: '{b}: {d}%'  // 标签格式：名称: 百分比
+                        },
+
+                        // 配置高亮状态（鼠标悬停时）
+                        emphasis: {
+                            label: {
+                                show: true,  // 高亮时显示标签
+                                fontSize: '14',  // 高亮时标签字体大小
+                                fontWeight: 'bold'  // 高亮时标签字体加粗
+                            }
+                        },
+
+                        // 饼图数据
+                        data: [
+                            { value: 35, name: '本帮菜', itemStyle: { color: '#36CBCB' } },  // 本帮菜占比 35%
+                            { value: 25, name: '潮汕菜', itemStyle: { color: '#722ED1' } },  // 潮汕菜占比 25%
+                            { value: 20, name: '江浙菜', itemStyle: { color: '#FF7D00' } },  // 江浙菜占比 20%
+                            { value: 15, name: '川菜', itemStyle: { color: '#F53F3F' } },    // 川菜占比 15%
+                            { value: 5, name: '其他', itemStyle: { color: '#4E5969' } }        // 其他占比 5%
+                        ]
+                    }
+                ]
+            });
+
+            // 预约时段分布
+            // 初始化时段分布图表实例，绑定到 ID 为 timeDistributionChart 的 DOM 元素
+            const timeDistributionChart = echarts.init(document.getElementById('timeDistributionChart'));
+
+            // 设置图表配置项
+            timeDistributionChart.setOption({
+                // 配置鼠标悬停时的提示框
+                tooltip: {
+                    trigger: 'axis',  // 触发类型为坐标轴，鼠标悬停在坐标轴上时显示提示
+                    axisPointer: {
+                        type: 'shadow'  // 指示器类型为阴影，增强视觉对比
+                    }
+                },
+
+                // 配置图表网格区域
+                grid: {
+                    left: '3%',  // 网格左侧边距
+                    right: '4%', // 网格右侧边距
+                    bottom: '3%', // 网格底部边距
+                    containLabel: true  // 网格区域是否包含坐标轴标签
+                },
+
+                // 配置 X 轴（时间轴）
+                xAxis: {
+                    type: 'category',  // 类别轴
+                    data: ['10:00', '11:00', '12:00', '13:00', '14:00', '17:00', '18:00', '19:00', '20:00', '21:00'],  // 时间点数据
+                    axisLabel: {
+                        color: '#C9CDD4',  // 坐标轴标签颜色
+                        rotate: 45  // 标签旋转 45 度，避免拥挤
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#4E5969'  // 坐标轴线条颜色
+                        }
+                    }
+                },
+
+                // 配置 Y 轴（数量轴）
+                yAxis: {
+                    type: 'value',  // 数值轴
+                    axisLabel: {
+                        color: '#C9CDD4'  // 坐标轴标签颜色
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#4E5969'  // 坐标轴线条颜色
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(78, 89, 105, 0.2)'  // 网格线颜色（半透明）
+                        }
+                    }
+                },
+
+                // 配置数据系列
+                series: [
+                    {
+                        name: '午餐',  // 系列名称
+                        type: 'bar',  // 图表类型：柱状图
+                        stack: '总量',  // 数据堆叠，相同 stack 值的系列会堆叠在一起
+                        data: [12, 32, 81, 42, 20, 0, 0, 0, 0, 0],  // 午餐时段数据（10:00-14:00有值）
+                        color: '#36CBCB'  // 柱状图颜色
+                    },
+                    {
+                        name: '晚餐',
+                        type: 'bar',
+                        stack: '总量',
+                        data: [0, 0, 0, 0, 0, 15, 62, 81, 42, 20],  // 晚餐时段数据（17:00-21:00有值）
+                        color: '#722ED1'
+                    }
+                ]
+            });
+
+            // 用户满意度
+            // 初始化满意度图表实例，绑定到 ID 为 satisfactionChart 的 DOM 元素
+            const satisfactionChart = echarts.init(document.getElementById('satisfactionChart'));
+
+            // 设置图表配置项
+            satisfactionChart.setOption({
+                // 配置鼠标悬停时的提示框
+                tooltip: {
+                    trigger: 'item',  // 触发类型为数据项
+                    formatter: '{a} <br/>{b}: {c}%'  // 提示框格式：系列名 <br/>数据名: 数值%
+                },
+
+                // 配置数据系列
+                series: [
+                    {
+                        name: '满意度',  // 系列名称
+                        type: 'gauge',  // 图表类型：仪表盘
+                        radius: '80%',  // 仪表盘半径大小
+
+                        // 配置仪表盘轴线样式
+                        axisLine: {
+                            lineStyle: {
+                                width: 30,  // 轴线宽度
+                                color: [  // 轴线颜色分段（根据数值范围显示不同颜色）
+                                    [0.2, '#F53F3F'],  // 0-20% 为红色
+                                    [0.5, '#F7BA1E'],  // 20-50% 为橙色
+                                    [0.8, '#27AE60'],  // 50-80% 为绿色
+                                    [1, '#36CBCB']     // 80-100% 为青色
+                                ]
+                            }
+                        },
+
+                        // 隐藏刻度线和标签
+                        splitLine: { show: false },  // 隐藏分隔线
+                        axisTick: { show: false },   // 隐藏刻度标记
+                        axisLabel: { show: false },  // 隐藏刻度标签
+
+                        pointer: { show: true },  // 显示指针
+
+                        // 配置标题
+                        title: {
+                            show: true,  // 显示标题
+                            offsetCenter: [0, '-40%'],  // 标题位置（垂直向上偏移 40%）
+                            textStyle: {
+                                color: '#C9CDD4',  // 标题颜色
+                                fontSize: 16      // 标题字体大小
+                            }
+                        },
+
+                        // 配置仪表盘中央显示的详细数值
+                        detail: {
+                            formatter: '{value}%',  // 数值格式化为百分比
+                            textStyle: {
+                                color: '#FFFFFF',  // 数值颜色
+                                fontSize: 30      // 数值字体大小
+                            }
+                        },
+
+                        // 仪表盘数据
+                        data: [{ value: 89, name: '满意度' }]  // 当前满意度值为 89%
+                    }
+                ]
+            });
+
+            // 热门餐厅排行
+            // 初始化热门餐厅图表实例，绑定到 ID 为 popularRestaurantsChart 的 DOM 元素
+            const popularRestaurantsChart = echarts.init(document.getElementById('popularRestaurantsChart'));
+
+            // 设置图表配置项
+            popularRestaurantsChart.setOption({
+                // 配置鼠标悬停时的提示框
+                tooltip: {
+                    trigger: 'axis',  // 触发类型为坐标轴，鼠标悬停在坐标轴上时显示提示
+                    axisPointer: {
+                        type: 'shadow'  // 指示器类型为阴影，增强视觉对比
+                    }
+                },
+
+                // 配置图表网格区域
+                grid: {
+                    left: '3%',  // 网格左侧边距
+                    right: '4%', // 网格右侧边距
+                    bottom: '3%', // 网格底部边距
+                    containLabel: true  // 网格区域是否包含坐标轴标签
+                },
+
+                // 配置 X 轴（数值轴）
+                xAxis: {
+                    type: 'value',  // 数值轴
+                    boundaryGap: [0, 0.01],  // 坐标轴两边留白策略
+                    axisLabel: {
+                        color: '#C9CDD4'  // 坐标轴标签颜色
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#4E5969'  // 坐标轴线条颜色
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(78, 89, 105, 0.2)'  // 网格线颜色（半透明）
+                        }
+                    }
+                },
+
+                // 配置 Y 轴（类别轴）
+                yAxis: {
+                    type: 'category',  // 类别轴
+                    data: ['老正兴菜馆', '九储堂', '翰和万家', '宴周康', '汕苑'],  // 餐厅名称数据
+                    axisLabel: {
+                        color: '#C9CDD4'  // 坐标轴标签颜色
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#4E5969'  // 坐标轴线条颜色
+                        }
+                    }
+                },
+
+                // 配置数据系列
+                series: [
+                    {
+                        name: '预约数',  // 系列名称
+                        type: 'bar',  // 图表类型：柱状图（横向，因为 Y 轴是类别轴）
+                        data: [320, 282, 251, 184, 150],  // 各餐厅预约数数据
+                        color: '#36CBCB'  // 柱状图颜色
+                    }
+                ]
+            });
+
+
+
+
+            // 窗口大小变化时重绘图表
+            window.addEventListener('resize', function () {
+                bookingsTrendChart.resize();
+                usersTrendChart.resize();
+                utilizationTrendChart.resize();
+                waitingTrendChart.resize();
+                bookingTrendChart.resize();
+                restaurantDistributionChart.resize();
+                timeDistributionChart.resize();
+                satisfactionChart.resize();
+                popularRestaurantsChart.resize();
+                areaDistributionChart.resize();
+                anomalyDetectionChart.resize();
+            });
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function () {
+            updateDateTime();
+            initScrollIndicator();
+            initCharts();
+
+            // 每秒更新时间
+            setInterval(updateDateTime, 1000);
+        });
+    </script>
+</body>
+
+</html>

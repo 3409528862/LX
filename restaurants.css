@@ -1,0 +1,83 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+header {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+}
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #ddd;
+}
+nav ul li {
+    float: left;
+}
+nav ul li a {
+    display: block;
+    color: #333;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+nav ul li a:hover {
+    background-color: #bbb;
+}
+main {
+    padding: 20px;
+}
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.image-container {
+    display: inline-block;
+    vertical-align: top; /* 使元素顶部对齐 */
+    margin-right: 200px; /* 可根据需要调整图片和文字之间的间距 */
+    margin-bottom: 100px;
+}
+.text-container {
+    display: inline-block;
+    vertical-align: top; /* 使元素顶部对齐 */
+    margin-left: 100px;
+}
+
+
+.container {
+    display: flex;
+    align-items: center;
+    margin: 20px;
+}
+
+/* .text-container {
+    flex: 1;
+} */
+.button-container {
+    text-align: center;
+    margin: 20px;
+}
+.book-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.book-button:hover {
+    background-color: #45a049;
+}

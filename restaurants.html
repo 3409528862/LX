@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看餐厅 - 美食预订平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B35',
+                        secondary: '#004E89',
+                        neutral: '#F8F9FA',
+                        dark: '#2C3E50'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .restaurant-card {
+                @apply bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1;
+            }
+            .rating-badge {
+                @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-utensils text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-secondary">美食预订平台</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="text-gray-700 hover:text-primary transition-colors duration-300 flex items-center">
+                        <i class="fa-solid fa-home mr-1"></i> 首页
+                    </a></li>
+                    <li><a href="#" class="text-primary font-medium flex items-center">
+                        <i class="fa-solid fa-list mr-1"></i> 餐厅列表
+                    </a></li>
+                    <li><a href="booking.html" class="text-gray-700 hover:text-primary transition-colors duration-300 flex items-center">
+                        <i class="fa-solid fa-calendar-check mr-1"></i> 我的预订
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- 页面标题 -->
+        <div class="mb-8 text-center">
+            <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-secondary mb-2">探索附近的美食</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">发现城市中最受欢迎的餐厅，轻松预订座位，享受美食体验</p>
+        </div>
+        
+        <!-- 搜索和筛选 -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="relative flex-grow">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" placeholder="搜索餐厅、菜系或地址..." 
+                           class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                </div>
+                <div class="flex gap-2">
+                    <select class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        <option>全部区域</option>
+                        <option>黄浦区</option>
+                        <option>静安区</option>
+                        <option>浦东新区</option>
+                        <option>杨浦区</option>
+                    </select>
+                    <select class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-300">
+                        <option>全部菜系</option>
+                        <option>本帮菜</option>
+                        <option>潮汕菜</option>
+                        <option>私房菜</option>
+                        <option>江浙菜</option>
+                    </select>
+                    <button class="btn-primary">
+                        <i class="fa-solid fa-filter mr-1"></i> 筛选
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 餐厅列表 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 餐厅卡片 1 -->
+            <div class="restaurant-card">
+                <div class="relative">
+                    <img src="./img/can1.png" alt="翰和万家·融和餐厅" class="w-full h-48 object-cover">
+                    <div class="absolute top-3 right-3 bg-primary/90 text-white px-2 py-1 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-star mr-1"></i> 4.6
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-dark">翰和万家·融和餐厅</h3>
+                        <div class="w-32 h-32">
+                            <div id="chart1" class="w-full h-full"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span class="rating-badge bg-blue-100 text-blue-800">本帮菜</span>
+                            <span class="rating-badge bg-green-100 text-green-800">创意菜</span>
+                            <span class="rating-badge bg-purple-100 text-purple-800">可预订</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-map-marker-alt mr-1"></i> 杨浦区 · 控江地区
+                        </p>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-money-bill-wave mr-1"></i> 人均 ¥120-350
+                        </p>
+                        <p class="text-gray-600 text-sm">
+                            <i class="fa-solid fa-phone mr-1"></i> 13300000000
+                        </p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="flex">
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star-half-stroke text-yellow-400"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.6 (128条评价)</span>
+                        </div>
+                        <button class="btn-primary" onclick="window.location.href='booking.html'">
+                            <i class="fa-solid fa-calendar-plus mr-1"></i> 立即预订
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 餐厅卡片 2 -->
+            <div class="restaurant-card">
+                <div class="relative">
+                    <img src="/img/can2.png" alt="九储堂 碧云店" class="w-full h-48 object-cover">
+                    <div class="absolute top-3 right-3 bg-primary/90 text-white px-2 py-1 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-star mr-1"></i> 4.7
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-dark">九储堂 碧云店</h3>
+                        <div class="w-32 h-32">
+                            <div id="chart2" class="w-full h-full"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span class="rating-badge bg-blue-100 text-blue-800">私房菜</span>
+                            <span class="rating-badge bg-green-100 text-green-800">燕鲍翅</span>
+                            <span class="rating-badge bg-red-100 text-red-800">高端</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-map-marker-alt mr-1"></i> 浦东新区 · 碧云社区
+                        </p>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-money-bill-wave mr-1"></i> 人均 ¥900-1400
+                        </p>
+                        <p class="text-gray-600 text-sm">
+                            <i class="fa-solid fa-phone mr-1"></i> 18700000000
+                        </p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="flex">
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star-half-stroke text-yellow-400"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.7 (215条评价)</span>
+                        </div>
+                        <button class="btn-primary" onclick="window.location.href='booking.html'">
+                            <i class="fa-solid fa-calendar-plus mr-1"></i> 立即预订
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 餐厅卡片 3 -->
+            <div class="restaurant-card">
+                <div class="relative">
+                    <img src="/img/can3.png" alt="老正兴菜馆 福州路店" class="w-full h-48 object-cover">
+                    <div class="absolute top-3 right-3 bg-primary/90 text-white px-2 py-1 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-star mr-1"></i> 5.0
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-dark">老正兴菜馆 福州路店</h3>
+                        <div class="w-32 h-32">
+                            <div id="chart3" class="w-full h-full"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span class="rating-badge bg-blue-100 text-blue-800">本帮菜</span>
+                            <span class="rating-badge bg-green-100 text-green-800">老字号</span>
+                            <span class="rating-badge bg-purple-100 text-purple-800">可预订</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-map-marker-alt mr-1"></i> 黄浦区 · 人民广场
+                        </p>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-money-bill-wave mr-1"></i> 人均 ¥120-250
+                        </p>
+                        <p class="text-gray-600 text-sm">
+                            <i class="fa-solid fa-phone mr-1"></i> 12200000000
+                        </p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="flex">
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">5.0 (342条评价)</span>
+                        </div>
+                        <button class="btn-primary" onclick="window.location.href='booking.html'">
+                            <i class="fa-solid fa-calendar-plus mr-1"></i> 立即预订
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 餐厅卡片 4 -->
+            <div class="restaurant-card">
+                <div class="relative">
+                    <img src="/img/can4.png" alt="宴周康·精致江浙菜" class="w-full h-48 object-cover">
+                    <div class="absolute top-3 right-3 bg-primary/90 text-white px-2 py-1 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-star mr-1"></i> 4.6
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-dark">宴周康·精致江浙菜</h3>
+                        <div class="w-32 h-32">
+                            <div id="chart4" class="w-full h-full"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span class="rating-badge bg-blue-100 text-blue-800">江浙菜</span>
+                            <span class="rating-badge bg-green-100 text-green-800">精致</span>
+                            <span class="rating-badge bg-purple-100 text-purple-800">可预订</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-map-marker-alt mr-1"></i> 浦东新区 · 航头地区
+                        </p>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-money-bill-wave mr-1"></i> 人均 ¥180-300
+                        </p>
+                        <p class="text-gray-600 text-sm">
+                            <i class="fa-solid fa-phone mr-1"></i> 15500000000
+                        </p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="flex">
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star-half-stroke text-yellow-400"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.6 (178条评价)</span>
+                        </div>
+                        <button class="btn-primary" onclick="window.location.href='booking.html'">
+                            <i class="fa-solid fa-calendar-plus mr-1"></i> 立即预订
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 餐厅卡片 5 -->
+            <div class="restaurant-card">
+                <div class="relative">
+                    <img src="/img/can5.png" alt="汕苑 静安店" class="w-full h-48 object-cover">
+                    <div class="absolute top-3 right-3 bg-primary/90 text-white px-2 py-1 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-star mr-1"></i> 4.4
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-dark">汕苑 静安店</h3>
+                        <div class="w-32 h-32">
+                            <div id="chart5" class="w-full h-full"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span class="rating-badge bg-blue-100 text-blue-800">潮汕菜</span>
+                            <span class="rating-badge bg-green-100 text-green-800">海鲜</span>
+                            <span class="rating-badge bg-purple-100 text-purple-800">可预订</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-map-marker-alt mr-1"></i> 静安区 · 火车站地区
+                        </p>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-money-bill-wave mr-1"></i> 人均 ¥230-300
+                        </p>
+                        <p class="text-gray-600 text-sm">
+                            <i class="fa-solid fa-phone mr-1"></i> 17700000000
+                        </p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="flex">
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-gray-300"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.4 (156条评价)</span>
+                        </div>
+                        <button class="btn-primary" onclick="window.location.href='booking.html'">
+                            <i class="fa-solid fa-calendar-plus mr-1"></i> 立即预订
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 餐厅卡片 6 -->
+            <div class="restaurant-card">
+                <div class="relative">
+                    <img src="/img/can6.jpg" alt="红红火火火锅店" class="w-full h-48 object-cover">
+                    <div class="absolute top-3 right-3 bg-primary/90 text-white px-2 py-1 rounded-md text-sm font-medium">
+                        <i class="fa-solid fa-star mr-1"></i> 4.8
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-dark">红红火火火锅店</h3>
+                        <div class="w-32 h-32">
+                            <div id="chart6" class="w-full h-full"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <span class="rating-badge bg-blue-100 text-blue-800">川菜</span>
+                            <span class="rating-badge bg-green-100 text-green-800">火锅</span>
+                            <span class="rating-badge bg-purple-100 text-purple-800">可预订</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-map-marker-alt mr-1"></i> 徐汇区 · 徐家汇
+                        </p>
+                        <p class="text-gray-600 text-sm mb-1">
+                            <i class="fa-solid fa-money-bill-wave mr-1"></i> 人均 ¥150-250
+                        </p>
+                        <p class="text-gray-600 text-sm">
+                            <i class="fa-solid fa-phone mr-1"></i> 13800000000
+                        </p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div class="flex">
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star text-yellow-400"></i>
+                                <i class="fa-solid fa-star-half-stroke text-yellow-400"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.8 (235条评价)</span>
+                        </div>
+                        <button class="btn-primary" onclick="window.location.href='booking.html'">
+                            <i class="fa-solid fa-calendar-plus mr-1"></i> 立即预订
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 加载更多 -->
+        <div class="mt-10 text-center">
+            <button class="btn-primary px-8">
+                <i class="fa-solid fa-refresh mr-1"></i> 加载更多餐厅
+            </button>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-secondary text-white mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">美食预订平台</h3>
+                    <p class="text-gray-300">发现城市中最受欢迎的餐厅，轻松预订座位，享受美食体验。</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-white hover:text-primary transition-colors duration-300">
+                            <i class="fa-brands fa-weibo text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-primary transition-colors duration-300">
+                            <i class="fa-brands fa-wechat text-xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-primary transition-colors duration-300">
+                            <i class="fa-brands fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">首页</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">餐厅列表</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">热门推荐</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">关于我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-map-marker-alt mt-1 mr-2"></i>
+                            <span class="text-gray-300">上海市浦东新区世纪大道1号</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa-solid fa-phone mr-2"></i>
+                            <span class="text-gray-300">400-123-4567</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa-solid fa-envelope mr-2"></i>
+                            <span class="text-gray-300">contact@foodbooking.com</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">订阅我们</h3>
+                    <p class="text-gray-300 mb-4">订阅我们的电子邮件，获取最新的餐厅优惠和活动信息。</p>
+                    <form class="flex">
+                        <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg focus:outline-none text-dark w-full">
+                        <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-r-lg transition-colors duration-300">
+                            订阅
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 美食预订平台. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 初始化所有图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 图表配置
+            const chartOptions = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                series: [
+                    {
+                        name: '顾客满意度',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            
+            // 为每个餐厅创建图表
+            for (let i = 1; i <= 6; i++) {
+                const chartDom = document.getElementById(`chart${i}`);
+                if (chartDom) {
+                    const myChart = echarts.init(chartDom);
+                    
+                    // 根据餐厅评分生成不同的数据
+                    let data;
+                    switch(i) {
+                        case 1: // 翰和万家·融和餐厅
+                            data = [
+                                { value: 46, name: '非常满意', itemStyle: { color: '#00B42A' } },
+                                { value: 43, name: '满意', itemStyle: { color: '#FF7D00' } },
+                                { value: 11, name: '一般', itemStyle: { color: '#F5F5F5' } }
+                            ];
+                            break;
+                        case 2: // 九储堂 碧云店
+                            data = [
+                                { value: 52, name: '非常满意', itemStyle: { color: '#00B42A' } },
+                                { value: 43, name: '满意', itemStyle: { color: '#FF7D00' } },
+                                { value: 5, name: '一般', itemStyle: { color: '#F5F5F5' } }
+                            ];
+                            break;
+                        case 3: // 老正兴菜馆 福州路店
+                            data = [
+                                { value: 65, name: '非常满意', itemStyle: { color: '#00B42A' } },
+                                { value: 30, name: '满意', itemStyle: { color: '#FF7D00' } },
+                                { value: 5, name: '一般', itemStyle: { color: '#F5F5F5' } }
+                            ];
+                            break;
+                        case 4: // 宴周康·精致江浙菜
+                            data = [
+                                { value: 45, name: '非常满意', itemStyle: { color: '#00B42A' } },
+                                { value: 45, name: '满意', itemStyle: { color: '#FF7D00' } },
+                                { value: 10, name: '一般', itemStyle: { color: '#F5F5F5' } }
+                            ];
+                            break;
+                        case 5: // 汕苑 静安店
+                            data = [
+                                { value: 38, name: '非常满意', itemStyle: { color: '#00B42A' } },
+                                { value: 46, name: '满意', itemStyle: { color: '#FF7D00' } },
+                                { value: 16, name: '一般', itemStyle: { color: '#F5F5F5' } }
+                            ];
+                            break;
+                        case 6: // 示例餐厅
+                            data = [
+                                { value: 55, name: '非常满意', itemStyle: { color: '#00B42A' } },
+                                { value: 38, name: '满意', itemStyle: { color: '#FF7D00' } },
+                                { value: 7, name: '一般', itemStyle: { color: '#F5F5F5' } }
+                            ];
+                            break;
+                    }
+                    
+                    // 复制配置并设置数据
+                    const option = { ...chartOptions };
+                    option.series[0].data = data;
+                    
+                    // 设置图表选项
+                    myChart.setOption(option);
+                    
+                    // 响应窗口大小变化
+                    window.addEventListener('resize', function() {
+                        myChart.resize();
+                    });
+                }
+            }
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>餐厅预约订座系统 - 管理员界面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2C3E50',
+                        secondary: '#3498DB',
+                        accent: '#E74C3C',
+                        neutral: '#F5F7FA',
+                        success: '#27AE60',
+                        warning: '#F39C12',
+                        danger: '#E74C3C',
+                        info: '#3498DB',
+                        dark: '#1E293B'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .sidebar-item {
+                @apply flex items-center px-4 py-3 text-gray-300 hover:bg-secondary/20 hover:text-white rounded-lg transition-all duration-300;
+            }
+            .sidebar-item.active {
+                @apply bg-secondary/30 text-white font-medium;
+            }
+            .card {
+                @apply bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2;
+            }
+            .btn-primary {
+                @apply bg-primary hover:bg-primary/90 text-white focus:ring-primary/50;
+            }
+            .btn-secondary {
+                @apply bg-secondary hover:bg-secondary/90 text-white focus:ring-secondary/50;
+            }
+            .btn-success {
+                @apply bg-success hover:bg-success/90 text-white focus:ring-success/50;
+            }
+            .btn-warning {
+                @apply bg-warning hover:bg-warning/90 text-white focus:ring-warning/50;
+            }
+            .btn-danger {
+                @apply bg-danger hover:bg-danger/90 text-white focus:ring-danger/50;
+            }
+            .btn-outline {
+                @apply border-2 hover:bg-gray-100 focus:ring-gray-200;
+            }
+            .stats-card {
+                @apply bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-inter bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-primary text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-crown text-secondary text-2xl"></i>
+                <h1 class="text-xl font-bold">餐厅预约订座系统</h1>
+                <span class="text-xs bg-secondary/30 px-2 py-1 rounded-full">管理员</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="搜索..."
+                        class="pl-10 pr-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <img src="https://picsum.photos/seed/admin/40/40" alt="管理员头像"
+                        class="w-8 h-8 rounded-full border-2 border-secondary">
+                    <span class="hidden md:inline-block">管理员</span>
+                </div>
+                <button class="text-white hover:text-secondary transition-colors duration-300">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside class="w-64 bg-dark text-gray-300 shadow-lg hidden md:block transition-all duration-300">
+            <div class="p-4">
+                <div class="bg-primary/50 rounded-xl p-4 mb-6">
+                    <div class="flex items-center space-x-3">
+                        <img src="https://picsum.photos/seed/admin/60/60" alt="管理员头像"
+                            class="w-12 h-12 rounded-full border-2 border-secondary">
+                        <div>
+                            <h3 class="text-white font-bold">管理员</h3>
+                            <p class="text-xs text-gray-400">系统管理员</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between text-sm">
+                        <div class="text-center">
+                            <p class="text-white font-bold">5</p>
+                            <p class="text-xs text-gray-400">餐厅</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-white font-bold">128</p>
+                            <p class="text-xs text-gray-400">座位</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-white font-bold">24</p>
+                            <p class="text-xs text-gray-400">待审核</p>
+                        </div>
+                    </div>
+                </div>
+
+                <nav>
+                    <ul class="space-y-1">
+                        <li class="sidebar-item active">
+                            <i class="fa-solid fa-tachometer-alt w-6"></i>
+                            <span>控制面板</span>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="resmanage.html">
+                            <i class="fa-solid fa-utensils w-6"></i>
+                            <span>餐厅管理</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <i class="fa-solid fa-chair w-6"></i>
+                            <span>座位管理</span>
+                        </li>
+                        <li class="sidebar-item">
+                            <i class="fa-solid fa-users w-6"></i>
+                            <span>用户管理</span>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="approve-booking.html">
+                            <i class="fa-solid fa-calendar-check w-6"></i>
+                            <span>预约审核</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="data-analysis.html">
+                            <i class="fa-solid fa-chart-line w-6"></i>
+                            <span>数据分析</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <i class="fa-solid fa-cog w-6"></i>
+                            <span>系统设置</span>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="index.html">
+                                <span>返回首页</span>
+
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="flex-1 overflow-y-auto p-6">
+            <!-- 欢迎信息 -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-primary mb-2">欢迎回来，管理员</h2>
+                <p class="text-gray-600">今天是 <span id="currentDate"></span>，您有 <span
+                        class="text-secondary font-bold">24</span> 个预约需要审核</p>
+            </div>
+
+            <!-- 数据概览 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stats-card border-l-4 border-primary">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 text-sm">总餐厅数</p>
+                            <h3 class="text-3xl font-bold mt-1">5</h3>
+                            <p class="text-success text-sm mt-2 flex items-center">
+                                <i class="fa-solid fa-arrow-up mr-1"></i> 2 家 (本周)
+                            </p>
+                        </div>
+                        <div class="bg-primary/10 p-3 rounded-lg">
+                            <i class="fa-solid fa-utensils text-primary text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card border-l-4 border-secondary">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 text-sm">总座位数</p>
+                            <h3 class="text-3xl font-bold mt-1">128</h3>
+                            <p class="text-success text-sm mt-2 flex items-center">
+                                <i class="fa-solid fa-arrow-up mr-1"></i> 15 个 (本月)
+                            </p>
+                        </div>
+                        <div class="bg-secondary/10 p-3 rounded-lg">
+                            <i class="fa-solid fa-chair text-secondary text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card border-l-4 border-warning">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 text-sm">待审核预约</p>
+                            <h3 class="text-3xl font-bold mt-1">24</h3>
+                            <p class="text-danger text-sm mt-2 flex items-center">
+                                <i class="fa-solid fa-arrow-up mr-1"></i> 8 个 (今天)
+                            </p>
+                        </div>
+                        <div class="bg-warning/10 p-3 rounded-lg">
+                            <i class="fa-solid fa-clock text-warning text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-card border-l-4 border-success">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-500 text-sm">本月预约</p>
+                            <h3 class="text-3xl font-bold mt-1">156</h3>
+                            <p class="text-success text-sm mt-2 flex items-center">
+                                <i class="fa-solid fa-arrow-up mr-1"></i> 12% (同比)
+                            </p>
+                        </div>
+                        <div class="bg-success/10 p-3 rounded-lg">
+                            <i class="fa-solid fa-calendar-check text-success text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 管理区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- 餐厅管理 -->
+                <div class="card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-primary">餐厅管理</h3>
+                        <div class="flex space-x-2">
+                            <button class="btn btn-primary" id="addRestaurantBtn">
+                                <a href="add-restaurant.html">
+                                    <i class="fa-solid fa-plus mr-1"></i> 添加
+                                </a>
+                            </button>
+                            <button class="btn btn-outline border-primary text-primary" id="editRestaurantBtn">
+                                <a href="edit-restaurant.html">
+                                    <i class="fa-solid fa-pencil mr-1"></i> 修改
+                                </a>
+                            </button>
+                            <button class="btn btn-outline border-danger text-danger" id="deleteRestaurantBtn">
+                                <i class="fa-solid fa-trash mr-1"></i> 删除
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="bg-gray-100 text-left">
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600 rounded-tl-lg">ID</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">餐厅名称</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">座位数</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">状态</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600 rounded-tr-lg">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">001</td>
+                                    <td class="px-4 py-3 text-sm">翰和万家·融和餐厅</td>
+                                    <td class="px-4 py-3 text-sm">32</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">营业中</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80 mr-3">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">002</td>
+                                    <td class="px-4 py-3 text-sm">九储堂 碧云店</td>
+                                    <td class="px-4 py-3 text-sm">24</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">营业中</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80 mr-3">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">003</td>
+                                    <td class="px-4 py-3 text-sm">老正兴菜馆 福州路店</td>
+                                    <td class="px-4 py-3 text-sm">48</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">休息中</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80 mr-3">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 text-right">
+                        <button class="text-secondary hover:text-secondary/80 text-sm font-medium">
+                            查看全部 <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 座位管理 -->
+                <div class="card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-primary">座位管理</h3>
+                        <div class="flex space-x-2">
+                            <button class="btn btn-primary" id="addSeatBtn">
+                                <i class="fa-solid fa-plus mr-1"></i> 添加
+                            </button>
+                            <button class="btn btn-outline border-primary text-primary" id="editSeatBtn">
+                                <i class="fa-solid fa-pencil mr-1"></i> 修改
+                            </button>
+                            <button class="btn btn-outline border-danger text-danger" id="deleteSeatBtn">
+                                <i class="fa-solid fa-trash mr-1"></i> 删除
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="bg-gray-100 text-left">
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600 rounded-tl-lg">ID</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">餐厅</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">座位类型</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">状态</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600 rounded-tr-lg">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">S001</td>
+                                    <td class="px-4 py-3 text-sm">翰和万家·融和餐厅</td>
+                                    <td class="px-4 py-3 text-sm">4人桌</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">空闲</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80 mr-3">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">S002</td>
+                                    <td class="px-4 py-3 text-sm">九储堂 碧云店</td>
+                                    <td class="px-4 py-3 text-sm">包间</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">已预订</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80 mr-3">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">S003</td>
+                                    <td class="px-4 py-3 text-sm">老正兴菜馆 福州路店</td>
+                                    <td class="px-4 py-3 text-sm">2人桌</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">维护中</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80 mr-3">
+                                            <i class="fa-solid fa-pencil"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 text-right">
+                        <button class="text-secondary hover:text-secondary/80 text-sm font-medium">
+                            查看全部 <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 用户管理和预约审核 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- 用户管理 -->
+                <div class="card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-primary">用户管理</h3>
+                        <button class="btn btn-primary" id="viewUserInfoBtn">
+                            <i class="fa-solid fa-eye mr-1"></i> 查看
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="bg-gray-100 text-left">
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600 rounded-tl-lg">ID</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">用户名</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">注册日期</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">预约次数</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600 rounded-tr-lg">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">U001</td>
+                                    <td class="px-4 py-3 text-sm">张三</td>
+                                    <td class="px-4 py-3 text-sm">2024-05-12</td>
+                                    <td class="px-4 py-3 text-sm">8</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">U002</td>
+                                    <td class="px-4 py-3 text-sm">李四</td>
+                                    <td class="px-4 py-3 text-sm">2024-05-20</td>
+                                    <td class="px-4 py-3 text-sm">5</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">U003</td>
+                                    <td class="px-4 py-3 text-sm">王五</td>
+                                    <td class="px-4 py-3 text-sm">2024-06-05</td>
+                                    <td class="px-4 py-3 text-sm">3</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-secondary hover:text-secondary/80">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 text-right">
+                        <button class="text-secondary hover:text-secondary/80 text-sm font-medium">
+                            查看全部 <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 预约审核 -->
+                <div class="card">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-primary">预约审核</h3>
+                        <a href="approve-booking.html" class="btn btn-primary">
+                            <i class="fa-solid fa-list mr-1"></i> 全部预约
+                        </a>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="bg-gray-100 text-left">
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600 rounded-tl-lg">ID</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">用户</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">餐厅</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600">时间</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-600 rounded-tr-lg">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">B001</td>
+                                    <td class="px-4 py-3 text-sm">张三</td>
+                                    <td class="px-4 py-3 text-sm">翰和万家·融和餐厅</td>
+                                    <td class="px-4 py-3 text-sm">2024-06-18 18:00</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-success hover:text-success/80 mr-3">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">B002</td>
+                                    <td class="px-4 py-3 text-sm">李四</td>
+                                    <td class="px-4 py-3 text-sm">九储堂 碧云店</td>
+                                    <td class="px-4 py-3 text-sm">2024-06-20 19:30</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-success hover:text-success/80 mr-3">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-4 py-3 text-sm">B003</td>
+                                    <td class="px-4 py-3 text-sm">王五</td>
+                                    <td class="px-4 py-3 text-sm">老正兴菜馆 福州路店</td>
+                                    <td class="px-4 py-3 text-sm">2024-06-19 12:00</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-success hover:text-success/80 mr-3">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                        <button class="text-danger hover:text-danger/80">
+                                            <i class="fa-solid fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 text-right">
+                        <button class="text-secondary hover:text-secondary/80 text-sm font-medium">
+                            查看全部 <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-primary text-white py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 餐厅预约订座系统. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 设置当前日期
+        document.addEventListener('DOMContentLoaded', function () {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('zh-CN', options);
+
+            // 侧边栏交互
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function () {
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // 按钮动画
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function () {
+                    this.classList.add('scale-95');
+                    setTimeout(() => {
+                        this.classList.remove('scale-95');
+                    }, 150);
+                });
+            });
+
+            // 模拟数据加载
+            setTimeout(() => {
+                const loadingElements = document.querySelectorAll('.skeleton');
+                loadingElements.forEach(el => {
+                    el.classList.remove('skeleton');
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>

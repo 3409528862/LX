@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加餐厅</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B35',
+                        secondary: '#004E89',
+                        neutral: '#F8F9FA',
+                        dark: '#2C3E50'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-inter bg-gray-50 text-dark">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-utensils text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-secondary">餐厅预约订座系统 - 添加餐厅</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="index.html" class="text-gray-700 hover:text-primary transition-colors duration-300 flex items-center">
+                        <i class="fa-solid fa-home mr-1"></i> 首页
+                    </a></li>
+                    <li><a href="register.html" class="text-gray-700 hover:text-primary transition-colors duration-300 flex items-center">
+                        <i class="fa-solid fa-user-plus mr-1"></i> 注册
+                    </a></li>
+                    <li><a href="login.html" class="text-gray-700 hover:text-primary transition-colors duration-300 flex items-center">
+                        <i class="fa-solid fa-sign-in-alt mr-1"></i> 登录
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <!-- 主内容区域 -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold text-secondary mb-6">添加餐厅信息</h2>
+            <form id="addRestaurantForm">
+                <div class="mb-6">
+                    <label for="name" class="block text-sm font-medium text-gray-700">餐厅名称:</label>
+                    <input type="text" id="name" name="name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                </div>
+                <div class="mb-6">
+                    <label for="menu" class="block text-sm font-medium text-gray-700">菜单:</label>
+                    <textarea id="menu" name="menu" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"></textarea>
+                </div>
+                <div class="mb-6">
+                    <label for="location" class="block text-sm font-medium text-gray-700">位置:</label>
+                    <input type="text" id="location" name="location" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-plus mr-1"></i> 添加餐厅
+                </button>
+            </form>
+        </div>
+    </main>
+    <!-- 页脚 -->
+    <footer class="bg-secondary text-white mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <p class="text-center">&copy; 2025 餐厅预约订座系统</p>
+        </div>
+    </footer>
+    <script src="add-restaurant.js"></script>
+</body>
+</html>
